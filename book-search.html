@@ -9,40 +9,44 @@
   body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     font-size: 14px;
-    background: #fff;
+    background: #ffffff;
     color: #1a1a1a;
     padding: 20px;
   }
-  h2 { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
-  .subtitle { font-size: 13px; color: #666; margin-bottom: 20px; }
 
-  /* Token setup */
-  .setup {
-    background: #f7f7f7;
-    border: 1px solid #e5e5e5;
+  h2 { font-size: 17px; font-weight: 600; margin-bottom: 4px; }
+  .subtitle { font-size: 13px; color: #777; margin-bottom: 18px; }
+
+  /* Token panel */
+  .token-panel {
+    background: #f8f8f8;
+    border: 1px solid #e8e8e8;
     border-radius: 10px;
-    padding: 14px 16px;
     margin-bottom: 16px;
+    overflow: hidden;
   }
-  .setup summary {
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    color: #444;
-    list-style: none;
+  .token-header {
     display: flex;
     align-items: center;
-    gap: 6px;
+    justify-content: space-between;
+    padding: 12px 16px;
+    cursor: pointer;
+    user-select: none;
   }
-  .setup summary::-webkit-details-marker { display: none; }
-  .setup summary::before { content: '▸'; font-size: 11px; transition: transform 0.2s; }
-  .setup[open] summary::before { transform: rotate(90deg); }
-  .setup .inner { margin-top: 12px; }
-  .setup p { font-size: 12px; color: #666; margin-bottom: 10px; line-height: 1.5; }
-  .token-saved { font-size: 12px; color: #16a34a; margin-top: 6px; }
+  .token-header span { font-size: 13px; font-weight: 500; color: #444; }
+  .token-header .arrow { font-size: 11px; color: #aaa; transition: transform 0.2s; }
+  .token-header.open .arrow { transform: rotate(90deg); }
+  .token-body { display: none; padding: 0 16px 14px; }
+  .token-body.open { display: block; }
+  .token-body p { font-size: 12px; color: #666; line-height: 1.6; margin-bottom: 10px; }
+  .token-body p a { color: #3b82f6; }
+  .token-body p code { background: #efefef; padding: 1px 5px; border-radius: 4px; font-size: 11px; }
+  .token-row { display: flex; gap: 8px; }
+  .token-msg { font-size: 12px; margin-top: 6px; }
+  .token-msg.ok { color: #16a34a; }
+  .token-msg.err { color: #dc2626; }
 
-  /* Search bar */
-  .search-row { display: flex; gap: 8px; margin-bottom: 10px; }
+  /* Inputs & buttons */
   input[type=text], input[type=password] {
     flex: 1;
     height: 40px;
@@ -52,10 +56,14 @@
     font-size: 14px;
     font-family: inherit;
     outline: none;
+    background: #fff;
+    color: #1a1a1a;
     transition: border-color 0.15s;
+    min-width: 0;
   }
-  input:focus { border-color: #555; }
-  input::placeholder { color: #aaa; }
+  input:focus { border-color: #888; }
+  input::placeholder { color: #bbb; }
+
   button {
     height: 40px;
     padding: 0 16px;
@@ -67,34 +75,48 @@
     border: 1.5px solid #ddd;
     background: #fff;
     color: #333;
-    transition: background 0.12s, border-color 0.12s;
+    transition: background 0.12s, border-color 0.12s, transform 0.08s;
     white-space: nowrap;
+    flex-shrink: 0;
   }
-  button:hover { background: #f5f5f5; }
-  button:active { transform: scale(0.98); }
-  button:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
-  .btn-primary { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
-  .btn-primary:hover { background: #333; }
-  .btn-primary:disabled { background: #999; border-color: #999; }
+  button:hover:not(:disabled) { background: #f5f5f5; }
+  button:active:not(:disabled) { transform: scale(0.98); }
+  button:disabled { opacity: 0.4; cursor: not-allowed; }
 
-  /* Status line */
-  .status { font-size: 12px; color: #888; min-height: 18px; margin-bottom: 12px; }
+  .btn-primary {
+    background: #1a1a1a;
+    color: #fff;
+    border-color: #1a1a1a;
+  }
+  .btn-primary:hover:not(:disabled) { background: #333; border-color: #333; }
 
-  /* Results */
+  /* Search row */
+  .search-row { display: flex; gap: 8px; margin-bottom: 8px; }
+  .status-line { font-size: 12px; color: #999; min-height: 18px; margin-bottom: 10px; }
+
+  /* Cards */
   .results { display: flex; flex-direction: column; gap: 10px; }
+
   .card {
     display: flex;
     gap: 12px;
-    border: 1.5px solid #eee;
+    border: 1.5px solid #efefef;
     border-radius: 10px;
     padding: 12px;
     background: #fff;
     transition: border-color 0.15s;
+    animation: fadeIn 0.2s ease both;
   }
-  .card:hover { border-color: #ccc; }
+  .card:hover { border-color: #d0d0d0; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
   .cover {
-    width: 56px;
-    height: 80px;
+    width: 54px;
+    height: 78px;
     flex-shrink: 0;
     border-radius: 6px;
     background: #f0f0f0;
@@ -105,279 +127,308 @@
     font-size: 26px;
   }
   .cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .info { flex: 1; min-width: 0; }
+
+  .info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+
   .book-title {
     font-size: 14px;
     font-weight: 600;
-    margin-bottom: 2px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  .book-author { font-size: 12px; color: #888; font-style: italic; margin-bottom: 6px; }
-  .chips { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 8px; }
+  .book-author { font-size: 12px; color: #888; font-style: italic; }
+
+  .chips { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 2px; }
   .chip {
     font-size: 11px;
     padding: 2px 8px;
     border-radius: 20px;
     background: #f3f3f3;
-    color: #666;
-    border: 1px solid #e5e5e5;
+    color: #777;
+    border: 1px solid #e8e8e8;
   }
-  .actions { display: flex; gap: 6px; flex-wrap: wrap; }
-  .btn-want {
-    height: 32px;
+
+  .actions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+
+  .btn-sm {
+    height: 30px;
     font-size: 12px;
-    padding: 0 12px;
+    padding: 0 11px;
+  }
+  .btn-want {
     color: #1d6dbf;
-    border-color: #bad3f5;
+    border-color: #c3d9f8;
     background: #eff6ff;
   }
-  .btn-want:hover { background: #dbeafe; }
+  .btn-want:hover:not(:disabled) { background: #dbeafe; border-color: #93c5fd; }
+
   .btn-reading {
-    height: 32px;
-    font-size: 12px;
-    padding: 0 12px;
     color: #15803d;
     border-color: #bbf7d0;
     background: #f0fdf4;
   }
-  .btn-reading:hover { background: #dcfce7; }
-  .btn-added {
-    height: 32px;
-    font-size: 12px;
-    padding: 0 12px;
-    background: #f0fdf4 !important;
+  .btn-reading:hover:not(:disabled) { background: #dcfce7; border-color: #86efac; }
+
+  .btn-done {
     color: #15803d !important;
     border-color: #86efac !important;
+    background: #dcfce7 !important;
     cursor: default !important;
     transform: none !important;
   }
-  .btn-err {
-    height: 32px;
-    font-size: 12px;
-    padding: 0 12px;
-    background: #fef2f2 !important;
+  .btn-fail {
     color: #dc2626 !important;
     border-color: #fca5a5 !important;
-    cursor: default !important;
-    transform: none !important;
+    background: #fef2f2 !important;
   }
-  .empty { text-align: center; padding: 24px; color: #aaa; font-size: 13px; }
+
+  .empty { text-align: center; padding: 28px 16px; color: #bbb; font-size: 13px; }
+  .err-banner {
+    background: #fef2f2;
+    border: 1px solid #fca5a5;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: #991b1b;
+    margin-bottom: 10px;
+    line-height: 1.5;
+  }
 </style>
 </head>
 <body>
 
 <h2>Add a Book</h2>
-<p class="subtitle">Search for any book and add it to your Reading List.</p>
+<p class="subtitle">Search for any book and add it straight to your Reading List.</p>
 
-<!-- Notion token setup -->
-<details class="setup" id="tokenDetails">
-  <summary>Notion API token</summary>
-  <div class="inner">
-    <p>
-      You only need to do this once per device.<br><br>
-      <strong>How to get your token:</strong><br>
-      1. Go to <a href="https://www.notion.so/profile/integrations" target="_blank">notion.so/profile/integrations</a><br>
-      2. Click <strong>New integration</strong><br>
-      3. Give it a name (e.g. "Book Search"), select your workspace, click Save<br>
-      4. Copy the <strong>Internal Integration Secret</strong> (starts with <code>secret_</code>)<br>
-      5. Go to your <strong>Reading List</strong> page in Notion → click the <strong>···</strong> menu → <strong>Connect to</strong> → select your integration<br>
-      6. Paste the secret below
-    </p>
-    <div class="search-row">
-      <input type="password" id="tokenInput" placeholder="secret_xxxxxxxxxxxxxxxxxxxx" />
-      <button onclick="saveToken()">Save token</button>
-    </div>
-    <div id="tokenMsg"></div>
+<!-- Token panel -->
+<div class="token-panel" id="tokenPanel">
+  <div class="token-header" id="tokenHeader" onclick="toggleToken()">
+    <span id="tokenLabel">Notion API token (tap to set up)</span>
+    <span class="arrow">▸</span>
   </div>
-</details>
+  <div class="token-body" id="tokenBody">
+    <p>
+      You only need to do this once. Your token is saved in this browser only and never sent anywhere except Notion.<br><br>
+      <strong>How to get your token:</strong><br>
+      1. Open <a href="https://www.notion.so/profile/integrations" target="_blank">notion.so/profile/integrations</a> in a new tab<br>
+      2. Click <strong>New integration</strong>, give it any name, click Save<br>
+      3. Copy the <strong>Internal Integration Secret</strong> (starts with <code>secret_</code>)<br>
+      4. Go to your <strong>Reading List</strong> page → click <strong>···</strong> top right → <strong>Connections</strong> → connect your integration<br>
+      5. Paste the secret below and click Save
+    </p>
+    <div class="token-row">
+      <input type="password" id="tokenInput" placeholder="secret_xxxxxxxxxxxxxxxxxxxx" />
+      <button onclick="saveToken()">Save</button>
+    </div>
+    <div class="token-msg" id="tokenMsg"></div>
+  </div>
+</div>
 
-<!-- Search bar -->
+<!-- Search -->
 <div class="search-row">
   <input type="text" id="searchInput" placeholder="Search by title, author, or ISBN..." />
   <button class="btn-primary" id="searchBtn" onclick="doSearch()">Search</button>
 </div>
-<div class="status" id="status"></div>
+<div class="status-line" id="statusLine"></div>
+<div id="errBanner"></div>
 <div class="results" id="results"></div>
 
 <script>
-// ── CONFIG ──────────────────────────────────────────────
-// Your Book-List-Database collection ID (do not change)
-const DATABASE_ID = '7eb97b26-71a9-4577-badc-90226f795551';
+// ─── YOUR DATABASE ID — do not change ───────────────────
+const DB_ID = '7eb97b26-71a9-4577-badc-90226f795551';
 // ────────────────────────────────────────────────────────
 
 let token = localStorage.getItem('notion_book_token') || '';
+let bookData = [];
 
-function init() {
+// Init token UI
+(function() {
   if (token) {
-    document.getElementById('tokenDetails').removeAttribute('open');
-    document.getElementById('tokenDetails').querySelector('summary').textContent = '✓ Notion token saved';
+    document.getElementById('tokenLabel').textContent = '✓ Notion token saved';
   } else {
-    document.getElementById('tokenDetails').setAttribute('open', '');
+    document.getElementById('tokenHeader').classList.add('open');
+    document.getElementById('tokenBody').classList.add('open');
   }
+})();
+
+function toggleToken() {
+  const h = document.getElementById('tokenHeader');
+  const b = document.getElementById('tokenBody');
+  h.classList.toggle('open');
+  b.classList.toggle('open');
 }
 
 function saveToken() {
   const val = document.getElementById('tokenInput').value.trim();
-  if (!val.startsWith('secret_')) {
-    document.getElementById('tokenMsg').innerHTML = '<span style="color:#dc2626;font-size:12px;">Token should start with secret_</span>';
-    return;
-  }
+  const msg = document.getElementById('tokenMsg');
+  if (!val) { msg.className = 'token-msg err'; msg.textContent = 'Please paste your token first.'; return; }
+  if (!val.startsWith('secret_')) { msg.className = 'token-msg err'; msg.textContent = 'Token should start with secret_ — double check you copied the right thing.'; return; }
   token = val;
   localStorage.setItem('notion_book_token', token);
-  document.getElementById('tokenMsg').innerHTML = '<span class="token-saved">✓ Token saved. You\'re all set!</span>';
-  document.getElementById('tokenDetails').removeAttribute('open');
-  document.getElementById('tokenDetails').querySelector('summary').textContent = '✓ Notion token saved';
+  msg.className = 'token-msg ok';
+  msg.textContent = '✓ Token saved! You\'re all set.';
+  document.getElementById('tokenLabel').textContent = '✓ Notion token saved';
+  setTimeout(() => {
+    document.getElementById('tokenHeader').classList.remove('open');
+    document.getElementById('tokenBody').classList.remove('open');
+  }, 1200);
 }
 
+// Enter key support
 document.addEventListener('keydown', e => {
-  if (e.key === 'Enter' && document.activeElement.id === 'searchInput') doSearch();
-  if (e.key === 'Enter' && document.activeElement.id === 'tokenInput') saveToken();
+  if (e.key === 'Enter') {
+    if (document.activeElement.id === 'searchInput') doSearch();
+    if (document.activeElement.id === 'tokenInput') saveToken();
+  }
 });
 
 async function doSearch() {
   const q = document.getElementById('searchInput').value.trim();
   if (!q) return;
 
-  const btn = document.getElementById('searchBtn');
-  const statusEl = document.getElementById('status');
+  const btn       = document.getElementById('searchBtn');
+  const statusEl  = document.getElementById('statusLine');
   const resultsEl = document.getElementById('results');
+  const errEl     = document.getElementById('errBanner');
 
-  btn.disabled = true;
+  btn.disabled   = true;
   btn.textContent = 'Searching...';
   statusEl.textContent = '';
-  resultsEl.innerHTML = '';
+  resultsEl.innerHTML  = '';
+  errEl.innerHTML      = '';
+  bookData = [];
 
   try {
-    const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}&maxResults=8&printType=books&langRestrict=en`;
-    const res = await fetch(url);
-    const data = await res.json();
+    const res  = await fetch(
+      `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}&maxResults=8&printType=books&langRestrict=en`,
+      { method: 'GET', headers: { 'Accept': 'application/json' } }
+    );
+
+    if (!res.ok) throw new Error(`Google Books returned ${res.status}`);
+
+    const data  = await res.json();
     const items = data.items || [];
 
-    if (items.length === 0) {
-      resultsEl.innerHTML = '<div class="empty">No books found. Try a different search.</div>';
+    if (!items.length) {
+      resultsEl.innerHTML = '<div class="empty">No books found. Try a different title or author name.</div>';
     } else {
       statusEl.textContent = `${items.length} result${items.length !== 1 ? 's' : ''}`;
+
       items.forEach((item, i) => {
-        const v = item.volumeInfo || {};
-        const title = v.title || 'Untitled';
+        const v       = item.volumeInfo || {};
+        const title   = v.title || 'Untitled';
         const authors = (v.authors || []).join(', ') || 'Unknown author';
-        const pages = v.pageCount || null;
-        const year = v.publishedDate ? v.publishedDate.slice(0, 4) : null;
+        const pages   = v.pageCount   || null;
+        const year    = v.publishedDate ? v.publishedDate.slice(0, 4) : null;
         const summary = (v.description || '').slice(0, 2000);
-        const thumb = v.imageLinks?.thumbnail?.replace('http://', 'https://') || null;
+        const raw     = v.imageLinks?.thumbnail || v.imageLinks?.smallThumbnail || '';
+        const thumb   = raw.replace('http://', 'https://');
+
+        bookData[i] = { title, authors, pages, year, summary, thumb };
 
         const card = document.createElement('div');
         card.className = 'card';
         card.innerHTML = `
           <div class="cover">
-            ${thumb ? `<img src="${thumb}" loading="lazy" alt="cover"/>` : '📖'}
+            ${thumb ? `<img src="${thumb}" loading="lazy" alt=""/>` : '📖'}
           </div>
           <div class="info">
-            <div class="book-title" title="${escHtml(title)}">${escHtml(title)}</div>
-            <div class="book-author">${escHtml(authors)}</div>
+            <div class="book-title" title="${esc(title)}">${esc(title)}</div>
+            <div class="book-author">${esc(authors)}</div>
             <div class="chips">
               ${pages ? `<span class="chip">${pages} pages</span>` : ''}
-              ${year ? `<span class="chip">${year}</span>` : ''}
+              ${year  ? `<span class="chip">${year}</span>`        : ''}
             </div>
             <div class="actions">
-              <button class="btn-want" id="w${i}" onclick="addBook(${i}, 'Want To Read')">+ Want to Read</button>
-              <button class="btn-reading" id="r${i}" onclick="addBook(${i}, 'Reading')">+ Currently Reading</button>
+              <button class="btn-sm btn-want"    id="w${i}" onclick="addBook(${i},'Want To Read')">+ Want to Read</button>
+              <button class="btn-sm btn-reading" id="r${i}" onclick="addBook(${i},'Reading')">+ Currently Reading</button>
             </div>
           </div>`;
-        card.dataset.book = JSON.stringify({ title, authors, pages, year, summary, thumb });
         resultsEl.appendChild(card);
       });
     }
-  } catch (err) {
-    statusEl.textContent = 'Search failed. Check your internet connection.';
+  } catch(err) {
+    errEl.innerHTML = `<div class="err-banner">
+      Search failed: ${esc(err.message)}<br>
+      This can happen when the page is embedded in Notion. Try opening this page directly in your browser:
+      <strong>${location.href}</strong>
+    </div>`;
   }
 
-  btn.disabled = false;
+  btn.disabled    = false;
   btn.textContent = 'Search';
 }
 
-async function addBook(idx, status) {
+async function addBook(i, status) {
   if (!token) {
-    document.getElementById('tokenDetails').setAttribute('open', '');
-    document.getElementById('status').textContent = 'Please enter your Notion token first (see above).';
+    document.getElementById('tokenHeader').classList.add('open');
+    document.getElementById('tokenBody').classList.add('open');
+    document.getElementById('statusLine').textContent = 'Please save your Notion token first (see above).';
     return;
   }
 
-  const cards = document.querySelectorAll('.card');
-  const card = cards[idx];
-  const book = JSON.parse(card.dataset.book);
-  const wBtn = document.getElementById(`w${idx}`);
-  const rBtn = document.getElementById(`r${idx}`);
-
-  wBtn.disabled = true;
-  rBtn.disabled = true;
-  document.getElementById('status').textContent = `Adding "${book.title}"...`;
+  const book = bookData[i];
+  const wBtn = document.getElementById(`w${i}`);
+  const rBtn = document.getElementById(`r${i}`);
+  wBtn.disabled = rBtn.disabled = true;
+  document.getElementById('statusLine').textContent = `Adding "${book.title}"...`;
+  document.getElementById('errBanner').innerHTML = '';
 
   const today = new Date().toISOString().slice(0, 10);
 
   const properties = {
-    Name: { title: [{ text: { content: book.title } }] },
-    Status: { status: { name: status } },
+    Name:    { title:     [{ text: { content: book.title } }] },
+    Status:  { status:    { name: status } },
     Summary: { rich_text: [{ text: { content: book.summary } }] }
   };
-  if (book.pages) properties['Pages'] = { number: book.pages };
-  if (book.year) properties['Published Year'] = { number: parseInt(book.year) };
-  if (status === 'Reading') {
-    properties['Date Started'] = { date: { start: today } };
-  }
-
-  // Set page cover to book cover image
-  const coverPayload = book.thumb ? { external: { url: book.thumb } } : undefined;
+  if (book.pages) properties['Pages']          = { number: book.pages };
+  if (book.year)  properties['Published Year'] = { number: parseInt(book.year) };
+  if (status === 'Reading') properties['Date Started'] = { date: { start: today } };
 
   const payload = {
-    parent: { database_id: DATABASE_ID },
+    parent: { database_id: DB_ID },
     properties,
-    ...(coverPayload ? { cover: coverPayload } : {})
+    ...(book.thumb ? { cover: { type: 'external', external: { url: book.thumb } } } : {})
   };
 
   try {
     const res = await fetch('https://api.notion.com/v1/pages', {
-      method: 'POST',
+      method:  'POST',
       headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
+        'Authorization':  `Bearer ${token}`,
+        'Content-Type':   'application/json',
         'Notion-Version': '2022-06-28'
       },
       body: JSON.stringify(payload)
     });
 
-    const data = await res.json();
+    const result = await res.json();
 
-    if (res.ok && data.id) {
+    if (res.ok && result.id) {
       const clickedBtn = status === 'Reading' ? rBtn : wBtn;
-      const otherBtn  = status === 'Reading' ? wBtn : rBtn;
-      clickedBtn.className = 'btn-added';
+      const otherBtn   = status === 'Reading' ? wBtn : rBtn;
+      clickedBtn.className = 'btn-sm btn-done';
       clickedBtn.textContent = '✓ Added!';
       otherBtn.style.display = 'none';
-      document.getElementById('status').textContent = `"${book.title}" added to ${status === 'Reading' ? 'Currently Reading' : 'Want to Read'}.`;
+      document.getElementById('statusLine').textContent =
+        `"${book.title}" added to ${status === 'Reading' ? 'Currently Reading' : 'Want to Read'}.`;
     } else {
-      throw new Error(data.message || 'Unknown error');
+      throw new Error(result.message || `Notion returned ${res.status}`);
     }
-  } catch (err) {
-    wBtn.disabled = false;
-    rBtn.disabled = false;
-    wBtn.className = 'btn-err';
-    wBtn.textContent = 'Error — try again';
-    document.getElementById('status').textContent = `Failed: ${err.message}`;
-    setTimeout(() => {
-      wBtn.className = 'btn-want';
-      wBtn.textContent = '+ Want to Read';
-    }, 3000);
+  } catch(err) {
+    wBtn.disabled = rBtn.disabled = false;
+    document.getElementById('errBanner').innerHTML = `<div class="err-banner">
+      Could not add book: ${esc(err.message)}<br>
+      Double-check that your token is correct and that you connected the integration to your Reading List page.
+    </div>`;
+    document.getElementById('statusLine').textContent = '';
   }
 }
 
-function escHtml(str) {
-  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
-
-init();
 </script>
 </body>
 </html>
