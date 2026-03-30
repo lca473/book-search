@@ -3,398 +3,312 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Add a Book</title>
+<title>Add a Book — Reading List</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    font-size: 14px;
-    background: #ffffff;
+    background: #fafafa;
     color: #1a1a1a;
-    padding: 20px;
+    min-height: 100vh;
+    padding: 32px 16px 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
+  .container { width: 100%; max-width: 600px; }
 
-  h2 { font-size: 17px; font-weight: 600; margin-bottom: 4px; }
-  .subtitle { font-size: 13px; color: #777; margin-bottom: 18px; }
+  h1 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+  .sub { font-size: 13px; color: #888; margin-bottom: 24px; }
 
   /* Token panel */
   .token-panel {
-    background: #f8f8f8;
-    border: 1px solid #e8e8e8;
-    border-radius: 10px;
-    margin-bottom: 16px;
+    background: #fff;
+    border: 1.5px solid #e8e8e8;
+    border-radius: 12px;
+    margin-bottom: 18px;
     overflow: hidden;
   }
-  .token-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 16px;
-    cursor: pointer;
-    user-select: none;
+  .token-toggle {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 13px 16px; cursor: pointer; user-select: none;
   }
-  .token-header span { font-size: 13px; font-weight: 500; color: #444; }
-  .token-header .arrow { font-size: 11px; color: #aaa; transition: transform 0.2s; }
-  .token-header.open .arrow { transform: rotate(90deg); }
-  .token-body { display: none; padding: 0 16px 14px; }
+  .token-toggle .lbl { font-size: 14px; font-weight: 500; color: #333; }
+  .token-toggle .ok-badge {
+    font-size: 11px; padding: 2px 8px; border-radius: 20px;
+    background: #dcfce7; color: #15803d; font-weight: 500; display: none;
+  }
+  .token-toggle .ok-badge.show { display: inline; }
+  .token-toggle .chev { color: #bbb; font-size: 11px; transition: transform 0.2s; }
+  .token-toggle.open .chev { transform: rotate(90deg); }
+  .token-body { display: none; border-top: 1px solid #f0f0f0; padding: 16px; }
   .token-body.open { display: block; }
-  .token-body p { font-size: 12px; color: #666; line-height: 1.6; margin-bottom: 10px; }
-  .token-body p a { color: #3b82f6; }
-  .token-body p code { background: #efefef; padding: 1px 5px; border-radius: 4px; font-size: 11px; }
-  .token-row { display: flex; gap: 8px; }
-  .token-msg { font-size: 12px; margin-top: 6px; }
-  .token-msg.ok { color: #16a34a; }
-  .token-msg.err { color: #dc2626; }
-
-  /* Inputs & buttons */
-  input[type=text], input[type=password] {
-    flex: 1;
-    height: 40px;
-    padding: 0 12px;
-    border: 1.5px solid #ddd;
-    border-radius: 8px;
-    font-size: 14px;
-    font-family: inherit;
-    outline: none;
-    background: #fff;
-    color: #1a1a1a;
-    transition: border-color 0.15s;
-    min-width: 0;
+  .steps {
+    font-size: 12px; color: #555; line-height: 1.8;
+    background: #f8f8f8; border-radius: 8px; padding: 12px 14px;
+    margin-bottom: 12px;
   }
-  input:focus { border-color: #888; }
-  input::placeholder { color: #bbb; }
+  .steps a { color: #2563eb; }
+  .steps strong { color: #222; }
+  .steps ol { padding-left: 16px; margin-top: 4px; }
+  .steps code { background: #ebebeb; padding: 1px 5px; border-radius: 4px; font-size: 11px; }
+  .irow { display: flex; gap: 8px; }
+  .tmsg { font-size: 12px; margin-top: 7px; min-height: 16px; }
+  .tmsg.ok { color: #15803d; }
+  .tmsg.err { color: #dc2626; }
+
+  /* Inputs */
+  input[type=text], input[type=password] {
+    flex: 1; height: 42px; padding: 0 13px;
+    border: 1.5px solid #e0e0e0; border-radius: 9px;
+    font-size: 14px; font-family: inherit;
+    background: #fff; color: #1a1a1a; outline: none;
+    transition: border-color 0.15s; min-width: 0;
+  }
+  input:focus { border-color: #999; }
+  input::placeholder { color: #c5c5c5; }
 
   button {
-    height: 40px;
-    padding: 0 16px;
-    border-radius: 8px;
-    font-size: 13px;
-    font-weight: 500;
-    font-family: inherit;
-    cursor: pointer;
-    border: 1.5px solid #ddd;
-    background: #fff;
-    color: #333;
+    height: 42px; padding: 0 16px; border-radius: 9px;
+    font-size: 13px; font-weight: 500; font-family: inherit;
+    cursor: pointer; border: 1.5px solid #e0e0e0;
+    background: #fff; color: #333; white-space: nowrap; flex-shrink: 0;
     transition: background 0.12s, border-color 0.12s, transform 0.08s;
-    white-space: nowrap;
-    flex-shrink: 0;
   }
-  button:hover:not(:disabled) { background: #f5f5f5; }
+  button:hover:not(:disabled) { background: #f5f5f5; border-color: #ccc; }
   button:active:not(:disabled) { transform: scale(0.98); }
   button:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-dark { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+  .btn-dark:hover:not(:disabled) { background: #333; border-color: #333; }
+  .btn-sm { height: 30px; font-size: 12px; padding: 0 11px; border-radius: 7px; }
+  .btn-want    { color: #1d6dbf; border-color: #bfdbfe; background: #eff6ff; }
+  .btn-want:hover:not(:disabled)    { background: #dbeafe; }
+  .btn-reading { color: #15803d; border-color: #bbf7d0; background: #f0fdf4; }
+  .btn-reading:hover:not(:disabled) { background: #dcfce7; }
+  .btn-added { color: #15803d!important; border-color: #86efac!important; background: #dcfce7!important; cursor:default!important; }
+  .btn-fail  { color: #dc2626!important; border-color: #fca5a5!important; background: #fef2f2!important; }
 
-  .btn-primary {
-    background: #1a1a1a;
-    color: #fff;
-    border-color: #1a1a1a;
+  /* Search */
+  .srow { display: flex; gap: 8px; margin-bottom: 8px; }
+  .status { font-size: 12px; color: #aaa; min-height: 18px; margin-bottom: 10px; }
+
+  /* Error */
+  .errbanner {
+    background: #fef2f2; border: 1px solid #fca5a5;
+    border-radius: 9px; padding: 11px 14px;
+    font-size: 13px; color: #991b1b; line-height: 1.6; margin-bottom: 12px;
   }
-  .btn-primary:hover:not(:disabled) { background: #333; border-color: #333; }
-
-  /* Search row */
-  .search-row { display: flex; gap: 8px; margin-bottom: 8px; }
-  .status-line { font-size: 12px; color: #999; min-height: 18px; margin-bottom: 10px; }
 
   /* Cards */
   .results { display: flex; flex-direction: column; gap: 10px; }
-
   .card {
-    display: flex;
-    gap: 12px;
-    border: 1.5px solid #efefef;
-    border-radius: 10px;
-    padding: 12px;
-    background: #fff;
+    display: flex; gap: 12px;
+    background: #fff; border: 1.5px solid #efefef;
+    border-radius: 12px; padding: 13px;
     transition: border-color 0.15s;
-    animation: fadeIn 0.2s ease both;
+    animation: up 0.18s ease both;
   }
-  .card:hover { border-color: #d0d0d0; }
-
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(6px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
+  .card:hover { border-color: #d5d5d5; }
+  @keyframes up { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
 
   .cover {
-    width: 54px;
-    height: 78px;
-    flex-shrink: 0;
-    border-radius: 6px;
-    background: #f0f0f0;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 26px;
+    width: 56px; height: 80px; flex-shrink: 0;
+    border-radius: 6px; background: #f0f0f0; overflow: hidden;
+    display: flex; align-items: center; justify-content: center; font-size: 26px;
   }
-  .cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
-
+  .cover img { width:100%; height:100%; object-fit:cover; display:block; }
   .info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
-
-  .book-title {
-    font-size: 14px;
-    font-weight: 600;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+  .btitle {
+    font-size: 14px; font-weight: 600; line-height: 1.3;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
   }
-  .book-author { font-size: 12px; color: #888; font-style: italic; }
-
-  .chips { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 2px; }
-  .chip {
-    font-size: 11px;
-    padding: 2px 8px;
-    border-radius: 20px;
-    background: #f3f3f3;
-    color: #777;
-    border: 1px solid #e8e8e8;
-  }
-
-  .actions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
-
-  .btn-sm {
-    height: 30px;
-    font-size: 12px;
-    padding: 0 11px;
-  }
-  .btn-want {
-    color: #1d6dbf;
-    border-color: #c3d9f8;
-    background: #eff6ff;
-  }
-  .btn-want:hover:not(:disabled) { background: #dbeafe; border-color: #93c5fd; }
-
-  .btn-reading {
-    color: #15803d;
-    border-color: #bbf7d0;
-    background: #f0fdf4;
-  }
-  .btn-reading:hover:not(:disabled) { background: #dcfce7; border-color: #86efac; }
-
-  .btn-done {
-    color: #15803d !important;
-    border-color: #86efac !important;
-    background: #dcfce7 !important;
-    cursor: default !important;
-    transform: none !important;
-  }
-  .btn-fail {
-    color: #dc2626 !important;
-    border-color: #fca5a5 !important;
-    background: #fef2f2 !important;
-  }
-
-  .empty { text-align: center; padding: 28px 16px; color: #bbb; font-size: 13px; }
-  .err-banner {
-    background: #fef2f2;
-    border: 1px solid #fca5a5;
-    border-radius: 8px;
-    padding: 10px 14px;
-    font-size: 12px;
-    color: #991b1b;
-    margin-bottom: 10px;
-    line-height: 1.5;
-  }
+  .bauthor { font-size: 12px; color: #999; font-style: italic; }
+  .chips { display: flex; gap: 5px; flex-wrap: wrap; }
+  .chip { font-size: 11px; padding: 2px 7px; border-radius: 20px; background: #f3f3f3; color: #888; border: 1px solid #ebebeb; }
+  .actions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 3px; }
+  .empty { text-align: center; padding: 36px; color: #ccc; font-size: 14px; }
 </style>
 </head>
 <body>
+<div class="container">
 
-<h2>Add a Book</h2>
-<p class="subtitle">Search for any book and add it straight to your Reading List.</p>
+  <h1>📚 Add a Book</h1>
+  <p class="sub">Search for any book and add it straight to your Notion Reading List.</p>
 
-<!-- Token panel -->
-<div class="token-panel" id="tokenPanel">
-  <div class="token-header" id="tokenHeader" onclick="toggleToken()">
-    <span id="tokenLabel">Notion API token (tap to set up)</span>
-    <span class="arrow">▸</span>
-  </div>
-  <div class="token-body" id="tokenBody">
-    <p>
-      You only need to do this once. Your token is saved in this browser only and never sent anywhere except Notion.<br><br>
-      <strong>How to get your token:</strong><br>
-      1. Open <a href="https://www.notion.so/profile/integrations" target="_blank">notion.so/profile/integrations</a> in a new tab<br>
-      2. Click <strong>New integration</strong>, give it any name, click Save<br>
-      3. Copy the <strong>Internal Integration Secret</strong> (starts with <code>secret_</code>)<br>
-      4. Go to your <strong>Reading List</strong> page → click <strong>···</strong> top right → <strong>Connections</strong> → connect your integration<br>
-      5. Paste the secret below and click Save
-    </p>
-    <div class="token-row">
-      <input type="password" id="tokenInput" placeholder="secret_xxxxxxxxxxxxxxxxxxxx" />
-      <button onclick="saveToken()">Save</button>
+  <!-- Token panel -->
+  <div class="token-panel" id="tpanel">
+    <div class="token-toggle" id="ttoggle" onclick="toggleToken()">
+      <span class="lbl">Notion API token</span>
+      <span class="ok-badge" id="tbadge">Connected ✓</span>
+      <span class="chev">▸</span>
     </div>
-    <div class="token-msg" id="tokenMsg"></div>
+    <div class="token-body" id="tbody">
+      <div class="steps">
+        <strong>One-time setup — your token is saved in this browser only.</strong>
+        <ol>
+          <li>Open <a href="https://www.notion.so/profile/integrations" target="_blank">notion.so/profile/integrations</a></li>
+          <li>Click <strong>New integration</strong>, give it a name, click Save</li>
+          <li>Copy the <strong>Internal Integration Secret</strong> <code>secret_...</code></li>
+          <li>In Notion, go to your <strong>Reading List</strong> page → click <strong>···</strong> top right → <strong>Connections</strong> → connect your integration</li>
+          <li>Paste the secret below and click Save</li>
+        </ol>
+      </div>
+      <div class="irow">
+        <input type="password" id="tinput" placeholder="secret_xxxxxxxxxxxxxxxxxxxx" />
+        <button onclick="saveToken()">Save</button>
+      </div>
+      <div class="tmsg" id="tmsg"></div>
+    </div>
   </div>
-</div>
 
-<!-- Search -->
-<div class="search-row">
-  <input type="text" id="searchInput" placeholder="Search by title, author, or ISBN..." />
-  <button class="btn-primary" id="searchBtn" onclick="doSearch()">Search</button>
-</div>
-<div class="status-line" id="statusLine"></div>
-<div id="errBanner"></div>
-<div class="results" id="results"></div>
+  <!-- Search -->
+  <div class="srow">
+    <input type="text" id="q" placeholder="Search by title or author..." />
+    <button class="btn-dark" id="sbtn" onclick="search()">Search</button>
+  </div>
+  <div class="status" id="status"></div>
+  <div class="errbanner" id="errbanner" style="display:none"></div>
+  <div class="results" id="results"></div>
 
+</div>
 <script>
-// ─── YOUR DATABASE ID — do not change ───────────────────
-const DB_ID = '7eb97b26-71a9-4577-badc-90226f795551';
-// ────────────────────────────────────────────────────────
+const DB = '7eb97b26-71a9-4577-badc-90226f795551';
+let token = localStorage.getItem('nbt') || '';
+let books = [];
 
-let token = localStorage.getItem('notion_book_token') || '';
-let bookData = [];
-
-// Init token UI
-(function() {
+// Init
+(function init() {
   if (token) {
-    document.getElementById('tokenLabel').textContent = '✓ Notion token saved';
+    document.getElementById('tbadge').classList.add('show');
+    document.getElementById('ttoggle').querySelector('.lbl').textContent = 'Notion token';
   } else {
-    document.getElementById('tokenHeader').classList.add('open');
-    document.getElementById('tokenBody').classList.add('open');
+    document.getElementById('ttoggle').classList.add('open');
+    document.getElementById('tbody').classList.add('open');
   }
 })();
 
 function toggleToken() {
-  const h = document.getElementById('tokenHeader');
-  const b = document.getElementById('tokenBody');
-  h.classList.toggle('open');
-  b.classList.toggle('open');
+  document.getElementById('ttoggle').classList.toggle('open');
+  document.getElementById('tbody').classList.toggle('open');
 }
 
 function saveToken() {
-  const val = document.getElementById('tokenInput').value.trim();
-  const msg = document.getElementById('tokenMsg');
-  if (!val) { msg.className = 'token-msg err'; msg.textContent = 'Please paste your token first.'; return; }
-  if (!val.startsWith('secret_')) { msg.className = 'token-msg err'; msg.textContent = 'Token should start with secret_ — double check you copied the right thing.'; return; }
-  token = val;
-  localStorage.setItem('notion_book_token', token);
-  msg.className = 'token-msg ok';
-  msg.textContent = '✓ Token saved! You\'re all set.';
-  document.getElementById('tokenLabel').textContent = '✓ Notion token saved';
+  const v = document.getElementById('tinput').value.trim();
+  const msg = document.getElementById('tmsg');
+  if (!v) { msg.className='tmsg err'; msg.textContent='Please paste your token first.'; return; }
+  if (!v.startsWith('secret_')) { msg.className='tmsg err'; msg.textContent='Token should start with secret_ — check you copied the right value.'; return; }
+  token = v;
+  localStorage.setItem('nbt', token);
+  msg.className='tmsg ok'; msg.textContent='✓ Token saved!';
+  document.getElementById('tbadge').classList.add('show');
+  document.getElementById('ttoggle').querySelector('.lbl').textContent = 'Notion token';
   setTimeout(() => {
-    document.getElementById('tokenHeader').classList.remove('open');
-    document.getElementById('tokenBody').classList.remove('open');
-  }, 1200);
+    document.getElementById('ttoggle').classList.remove('open');
+    document.getElementById('tbody').classList.remove('open');
+  }, 1000);
 }
 
-// Enter key support
-document.addEventListener('keydown', e => {
-  if (e.key === 'Enter') {
-    if (document.activeElement.id === 'searchInput') doSearch();
-    if (document.activeElement.id === 'tokenInput') saveToken();
-  }
-});
+document.getElementById('q').addEventListener('keydown', e => { if(e.key==='Enter') search(); });
+document.getElementById('tinput').addEventListener('keydown', e => { if(e.key==='Enter') saveToken(); });
 
-async function doSearch() {
-  const q = document.getElementById('searchInput').value.trim();
+async function search() {
+  const q = document.getElementById('q').value.trim();
   if (!q) return;
-
-  const btn       = document.getElementById('searchBtn');
-  const statusEl  = document.getElementById('statusLine');
+  const btn = document.getElementById('sbtn');
+  const statusEl = document.getElementById('status');
   const resultsEl = document.getElementById('results');
-  const errEl     = document.getElementById('errBanner');
+  const errEl = document.getElementById('errbanner');
 
-  btn.disabled   = true;
-  btn.textContent = 'Searching...';
-  statusEl.textContent = '';
-  resultsEl.innerHTML  = '';
-  errEl.innerHTML      = '';
-  bookData = [];
+  btn.disabled = true; btn.textContent = 'Searching...';
+  statusEl.textContent = ''; resultsEl.innerHTML = '';
+  errEl.style.display = 'none'; books = [];
 
   try {
-    const res  = await fetch(
-      `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}&maxResults=8&printType=books&langRestrict=en`,
-      { method: 'GET', headers: { 'Accept': 'application/json' } }
+    // Use Open Library API — no key, no rate limits, works everywhere
+    const res = await fetch(
+      `https://openlibrary.org/search.json?q=${encodeURIComponent(q)}&limit=8&fields=key,title,author_name,first_publish_year,number_of_pages_median,cover_i,subject`
     );
-
-    if (!res.ok) throw new Error(`Google Books returned ${res.status}`);
-
-    const data  = await res.json();
-    const items = data.items || [];
+    if (!res.ok) throw new Error(`Search returned ${res.status}`);
+    const data = await res.json();
+    const items = (data.docs || []).filter(d => d.title);
 
     if (!items.length) {
       resultsEl.innerHTML = '<div class="empty">No books found. Try a different title or author name.</div>';
     } else {
       statusEl.textContent = `${items.length} result${items.length !== 1 ? 's' : ''}`;
-
       items.forEach((item, i) => {
-        const v       = item.volumeInfo || {};
-        const title   = v.title || 'Untitled';
-        const authors = (v.authors || []).join(', ') || 'Unknown author';
-        const pages   = v.pageCount   || null;
-        const year    = v.publishedDate ? v.publishedDate.slice(0, 4) : null;
-        const summary = (v.description || '').slice(0, 2000);
-        const raw     = v.imageLinks?.thumbnail || v.imageLinks?.smallThumbnail || '';
-        const thumb   = raw.replace('http://', 'https://');
+        const title   = item.title || 'Untitled';
+        const authors = (item.author_name || []).slice(0,2).join(', ') || 'Unknown author';
+        const year    = item.first_publish_year || null;
+        const pages   = item.number_of_pages_median || null;
+        const coverId = item.cover_i || null;
+        const thumb   = coverId ? `https://covers.openlibrary.org/b/id/${coverId}-M.jpg` : null;
+        const olKey   = item.key || '';
 
-        bookData[i] = { title, authors, pages, year, summary, thumb };
+        books[i] = { title, authors, year, pages, thumb, olKey, summary: '' };
 
         const card = document.createElement('div');
         card.className = 'card';
         card.innerHTML = `
-          <div class="cover">
-            ${thumb ? `<img src="${thumb}" loading="lazy" alt=""/>` : '📖'}
-          </div>
+          <div class="cover">${thumb ? `<img src="${thumb}" loading="lazy" alt=""/>` : '📖'}</div>
           <div class="info">
-            <div class="book-title" title="${esc(title)}">${esc(title)}</div>
-            <div class="book-author">${esc(authors)}</div>
+            <div class="btitle">${esc(title)}</div>
+            <div class="bauthor">${esc(authors)}</div>
             <div class="chips">
               ${pages ? `<span class="chip">${pages} pages</span>` : ''}
-              ${year  ? `<span class="chip">${year}</span>`        : ''}
+              ${year  ? `<span class="chip">${year}</span>` : ''}
             </div>
             <div class="actions">
-              <button class="btn-sm btn-want"    id="w${i}" onclick="addBook(${i},'Want To Read')">+ Want to Read</button>
-              <button class="btn-sm btn-reading" id="r${i}" onclick="addBook(${i},'Reading')">+ Currently Reading</button>
+              <button class="btn-sm btn-want"    id="w${i}" onclick="add(${i},'Want To Read')">+ Want to Read</button>
+              <button class="btn-sm btn-reading" id="r${i}" onclick="add(${i},'Reading')">+ Currently Reading</button>
             </div>
           </div>`;
         resultsEl.appendChild(card);
       });
     }
-  } catch(err) {
-    errEl.innerHTML = `<div class="err-banner">
-      Search failed: ${esc(err.message)}<br>
-      This can happen when the page is embedded in Notion. Try opening this page directly in your browser:
-      <strong>${location.href}</strong>
-    </div>`;
+  } catch(e) {
+    errEl.style.display = 'block';
+    errEl.textContent = `Search failed: ${e.message}. Check your internet connection and try again.`;
   }
 
-  btn.disabled    = false;
-  btn.textContent = 'Search';
+  btn.disabled = false; btn.textContent = 'Search';
 }
 
-async function addBook(i, status) {
+async function add(i, status) {
   if (!token) {
-    document.getElementById('tokenHeader').classList.add('open');
-    document.getElementById('tokenBody').classList.add('open');
-    document.getElementById('statusLine').textContent = 'Please save your Notion token first (see above).';
+    document.getElementById('ttoggle').classList.add('open');
+    document.getElementById('tbody').classList.add('open');
+    document.getElementById('status').textContent = 'Please save your Notion token first.';
     return;
   }
 
-  const book = bookData[i];
+  const book = books[i];
   const wBtn = document.getElementById(`w${i}`);
   const rBtn = document.getElementById(`r${i}`);
   wBtn.disabled = rBtn.disabled = true;
-  document.getElementById('statusLine').textContent = `Adding "${book.title}"...`;
-  document.getElementById('errBanner').innerHTML = '';
+  document.getElementById('status').textContent = `Adding "${book.title}"...`;
+  document.getElementById('errbanner').style.display = 'none';
 
-  const today = new Date().toISOString().slice(0, 10);
+  const today = new Date().toISOString().slice(0,10);
 
   const properties = {
     Name:    { title:     [{ text: { content: book.title } }] },
     Status:  { status:    { name: status } },
     Summary: { rich_text: [{ text: { content: book.summary } }] }
   };
-  if (book.pages) properties['Pages']          = { number: book.pages };
-  if (book.year)  properties['Published Year'] = { number: parseInt(book.year) };
+  if (book.pages) properties['Pages']           = { number: book.pages };
+  if (book.year)  properties['Published Year']  = { number: book.year };
   if (status === 'Reading') properties['Date Started'] = { date: { start: today } };
 
   const payload = {
-    parent: { database_id: DB_ID },
+    parent: { database_id: DB },
     properties,
     ...(book.thumb ? { cover: { type: 'external', external: { url: book.thumb } } } : {})
   };
 
   try {
     const res = await fetch('https://api.notion.com/v1/pages', {
-      method:  'POST',
+      method: 'POST',
       headers: {
         'Authorization':  `Bearer ${token}`,
         'Content-Type':   'application/json',
@@ -402,27 +316,25 @@ async function addBook(i, status) {
       },
       body: JSON.stringify(payload)
     });
-
     const result = await res.json();
 
     if (res.ok && result.id) {
-      const clickedBtn = status === 'Reading' ? rBtn : wBtn;
-      const otherBtn   = status === 'Reading' ? wBtn : rBtn;
-      clickedBtn.className = 'btn-sm btn-done';
-      clickedBtn.textContent = '✓ Added!';
-      otherBtn.style.display = 'none';
-      document.getElementById('statusLine').textContent =
+      const hit   = status === 'Reading' ? rBtn : wBtn;
+      const other = status === 'Reading' ? wBtn : rBtn;
+      hit.className = 'btn-sm btn-added';
+      hit.textContent = '✓ Added!';
+      other.style.display = 'none';
+      document.getElementById('status').textContent =
         `"${book.title}" added to ${status === 'Reading' ? 'Currently Reading' : 'Want to Read'}.`;
     } else {
-      throw new Error(result.message || `Notion returned ${res.status}`);
+      throw new Error(result.message || `Notion error ${res.status}`);
     }
-  } catch(err) {
+  } catch(e) {
     wBtn.disabled = rBtn.disabled = false;
-    document.getElementById('errBanner').innerHTML = `<div class="err-banner">
-      Could not add book: ${esc(err.message)}<br>
-      Double-check that your token is correct and that you connected the integration to your Reading List page.
-    </div>`;
-    document.getElementById('statusLine').textContent = '';
+    const errEl = document.getElementById('errbanner');
+    errEl.style.display = 'block';
+    errEl.textContent = `Could not add book: ${e.message}. Check your token and make sure you connected the integration to your Reading List page.`;
+    document.getElementById('status').textContent = '';
   }
 }
 
